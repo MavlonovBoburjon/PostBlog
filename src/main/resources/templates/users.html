@@ -17,6 +17,9 @@
 <div style="text-align:center; margin-bottom:15px;">
   <a th:href="@{/admin/users/new}">Create User</a> |
   <a th:href="@{/posts}">Posts</a>
+  <form th:action="@{/logout}" method="post" style="display:inline;">
+    <button type="submit" class="btn">Logout</button>
+  </form>
 </div>
 
 <!-- User table -->

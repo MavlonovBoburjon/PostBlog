@@ -6,6 +6,7 @@ import com.example.postblog.model.User;
 import com.example.postblog.service.PostService;
 import com.example.postblog.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -20,23 +21,30 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
 
+    @Value("${upload.path}")
+    private String uploadPath;
+
     @GetMapping
-    public String list(@RequestParam(value="page", defaultValue="0") int page,
-                       @RequestParam(value="size", defaultValue="5") int size,
-                       @RequestParam(value="q", required=false) String q,
-                       Authentication auth, Model model) {
+    public String list(
+            @RequestParam(value="page", defaultValue="0") int page,
+            @RequestParam(value="size", defaultValue="5") int size,
+            @RequestParam(value="q", required=false) String q,
+            Authentication auth,
+            Model model) {
 
         User me = userService.findByUsername(auth.getName());
-        Page<Post> posts;
-        if (me.getRole() == Role.ADMIN) {
-            posts = postService.pageAll(page, size, q);
-        } else {
-            posts = postService.pageForUser(me.getId(), page, size, q);
-        }
+
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        Page<Post> posts = postService.pageAll(page, size, q, me.getId(), isAdmin);
 
         model.addAttribute("postsPage", posts);
         model.addAttribute("currentPage", page);
         model.addAttribute("q", q);
+        model.addAttribute("uploadPath", uploadPath);
+        model.addAttribute("me", me);
+
         return "posts";
     }
 

@@ -17,17 +17,22 @@ public class PostService {
     private final PostRepo postRepo;
     private final PictureService pictureService;
 
-    public Page<Post> pageAll(int page, int size, String keyword) {
+    public Page<Post> pageAll(int page, int size, String keyword, Long userId, boolean isAdmin) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        if (keyword == null || keyword.isBlank()) return postRepo.findAll(pageable);
-        return postRepo.findByTitleContainingIgnoreCase(keyword, pageable);
+
+        if (isAdmin) {
+            if (keyword == null || keyword.isBlank()) {
+                return postRepo.findAll(pageable);
+            }
+            return postRepo.findByTitleContainingIgnoreCase(keyword, pageable);
+        } else {
+            if (keyword == null || keyword.isBlank()) {
+                return postRepo.findByStatusOrOwner(pageable, userId);
+            }
+            return postRepo.findByStatusOrOwnerAndTitleContainingIgnoreCase(userId, keyword, pageable);
+        }
     }
 
-    public Page<Post> pageForUser(Long userId, int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        if (keyword == null || keyword.isBlank()) return postRepo.findByUserId(userId, pageable);
-        return postRepo.findByUserIdAndTitleContainingIgnoreCase(userId, keyword, pageable);
-    }
 
     public Post create(User user, String title, String body, String status, MultipartFile image) throws IOException {
         Picture pic = pictureService.store(image);
@@ -46,7 +51,6 @@ public class PostService {
         post.setBody(body);
         post.setStatus(status);
         if (image != null && !image.isEmpty()) {
-            // delete old
             pictureService.delete(post.getPicture());
             Picture pic = pictureService.store(image);
             post.setPicture(pic);

@@ -21,7 +21,9 @@
     <div>Image: <input type="file" name="image"/></div>
     <div th:if="${post.picture != null}">
         Current image: <br/>
-        <img th:src="@{'/uploads/' + ${post.picture.fileName}}" width="160"/>
+        <img th:if="${post.picture != null}"
+             th:src="@{'/uploads/' + ${post.picture.fileName}}"
+             alt="Post Image" width="160"/>
     </div>
     <div>
         <button type="submit">Save</button>
