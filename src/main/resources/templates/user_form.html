@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>User Form</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<h2 th:text="${user.id == null} ? 'Create User' : 'Edit User'"></h2>
+
+<form th:action="@{/admin/users/save}" method="post">
+  <input type="hidden" name="id" th:value="${user.id}"/>
+  <div>Username: <input type="text" name="username" th:value="${user.username}" required/></div>
+  <div th:if="${user.id == null}">Password: <input type="password" name="password" required/></div>
+  <div th:if="${user.id != null}">New password (optional): <input type="password" name="password"/></div>
+  <div>Role:
+    <select name="role">
+      <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${user.role == r}"></option>
+    </select>
+  </div>
+  <div>
+    <button type="submit">Save</button>
+    <a th:href="@{/admin/users}">Cancel</a>
+  </div>
+</form>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<h2 th:text="${post.id == null} ? 'Create Post' : 'Edit Post'"></h2>
+
+<form th:action="@{/posts/save}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" th:value="${post.id}"/>
+    <div>Title: <input type="text" name="title" th:value="${post.title}" required/></div>
+    <div>Body:<br/><textarea name="body" rows="6" cols="60" th:text="${post.body}"></textarea></div>
+    <div>Status:
+        <select name="status">
+            <option th:selected="${post.status == 'PUBLISHED'}">PUBLISHED</option>
+            <option th:selected="${post.status == 'DRAFT'}">DRAFT</option>
+        </select>
+    </div>
+    <div>Image: <input type="file" name="image"/></div>
+    <div th:if="${post.picture != null}">
+        Current image: <br/>
+        <img th:src="@{'/uploads/' + ${post.picture.fileName}}" width="160"/>
+    </div>
+    <div>
+        <button type="submit">Save</button>
+        <a th:href="@{/posts}">Cancel</a>
+    </div>
+</form>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Posts</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<h2>Posts</h2>
+
+<form method="get" th:action="@{/posts}" class="search-form">
+  <input type="text" name="q" th:value="${q}" placeholder="Search title..."/>
+  <button type="submit">Search</button>
+</form>
+
+<div class="top-links">
+  <a th:href="@{/posts/new}" style="display:inline;" class="btn">Create Post</a>
+  <a th:href="@{/admin/users}" style="display:inline;" class="btn">Users</a>
+
+  <form th:action="@{/logout}" method="post" style="display:inline;">
+    <button type="submit" class="btn">Logout</button>
+  </form>
+
+</div>
+
+<!-- Cards container -->
+<div class="cards-container">
+  <div class="post-card" th:each="p : ${postsPage.content}">
+    <div class="card-image">
+      <img th:if="${p.picture != null}" th:src="@{'/uploads/' + ${p.picture.fileName}}" alt="Post Image"/>
+      <div th:if="${p.picture == null}" class="no-image">No Image</div>
+    </div>
+    <div class="card-content">
+      <h3 th:text="${p.title}"></h3>
+      <p th:text="${p.body}"></p>
+    </div>
+    <div class="card-footer">
+      <span th:text="'Author: ' + ${p.user.username}"></span>
+      <span th:text="'Status: ' + ${p.status}"></span>
+    </div>
+    <div class="card-actions">
+      <a th:href="@{'/posts/edit/' + ${p.id}}" class="btn">Edit</a>
+      <a th:href="@{'/posts/delete/' + ${p.id}}" class="btn delete-btn" onclick="return confirm('Delete?')">Delete</a>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+  <span th:text="'Page ' + ${postsPage.number + 1} + ' of ' + ${postsPage.totalPages}"></span>
+  <div th:if="${postsPage.totalPages > 1}">
+    <a th:if="${!postsPage.first}" th:href="@{/posts(page=${postsPage.number - 1}, q=${q})}">Prev</a>
+    <span th:each="i: ${#numbers.sequence(0, postsPage.totalPages -1)}">
+      <a th:href="@{/posts(page=${i}, q=${q})}" th:text="${i + 1}" th:classappend="${postsPage.number == i} ? 'current'"></a>
+    </span>
+    <a th:if="${!postsPage.last}" th:href="@{/posts(page=${postsPage.number + 1}, q=${q})}">Next</a>
+  </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
